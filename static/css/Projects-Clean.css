@@ -1,6 +1,6 @@
 .projects-clean {
   color: #313437;
-  background-color: #fff;
+  background-color: #fff0;
 }
 
 .projects-clean p {
@@ -11,7 +11,7 @@
   font-weight: bold;
   margin-bottom: 40px;
   padding-top: 40px;
-  color: inherit;
+  color: white;
 }
 
 @media (max-width:767px) {
@@ -46,12 +46,13 @@
   font-weight: bold;
   margin-top: 28px;
   margin-bottom: 8px;
-  color: inherit;
+  color: white;
 }
 
 .projects-clean .item .description {
   font-size: 15px;
   margin-top: 15px;
   margin-bottom: 0;
+  color: gray;
 }
 

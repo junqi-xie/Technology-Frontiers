@@ -1,0 +1,19 @@
+{% extends 'visual.html' %}
+
+{% block body %}
+<div class="article-list" style="padding-top: 60px;">
+    <div class="container">
+        <div class="row articles">
+            {% for result in results %}
+            <div class="col-sm-6 col-md-4 item">
+                <a href="{{ result.url }}">
+                    <img class="img-fluid" src="{{ result.url }}" alt="{{ result.description }}">
+                </a>
+                <h4 class="name"><a href="{{ result.action_url }}">{{ result.title }}</a></h4>
+                <p class="description">{{ result.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

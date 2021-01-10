@@ -1,0 +1,25 @@
+{% extends 'web.html' %}
+
+{% block body %}
+        <div class="container hero">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <h1 class="text-center">Search Results for "{{ keyword }}"</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="article-list" style="padding-top: 60px;">
+    <div class="container">
+        <div class="row articles"></div>
+            {% for result in results %}
+            <div class="col">
+                <h5><a href="{{ result.link }}">{{ result.title }}</a></h5>
+                <p>{{ result.abstract | safe }}</p>
+                <p><i>{{ result.url }}</i></p>
+                <br>
+            </div>
+            {% endfor %}
+        </div>
+{% endblock %}
