@@ -37,6 +37,14 @@
   color: white;
 }
 
+.article-clean .intro p .source {
+  text-transform: uppercase;
+  padding: 4px 0 4px 10px;
+  margin-left: 10px;
+  border-left: 1px solid #ddd;
+  color: white;
+}
+
 .article-clean .intro p a {
   color: inherit;
   text-transform: uppercase;

@@ -1,24 +1,40 @@
 {% extends 'images.html' %}
 
 {% block body %}
-<div class="container hero">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <h1 class="text-center">Search Results for "{{ keyword }}"</h1>
+        <div class="container hero">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <h1 class="text-center">Search Results for "{{ keyword }}"</h1>
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-right dropdown"><button class="btn btn-secondary text-right dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="text-align: right; background: var(--cyan);">Sort by</button>
+                                <div class="dropdown-menu">
+                                    <input type="text" class="form-control dropdown-search-input" placeholder="Search..">
+                                    <a class="dropdown-item" href="?keyword={{ keyword }}">Relevance</a>
+                                    <a class="dropdown-item" href="?keyword={{ keyword }}&sorting=date">Time</a>
+                                    <a class="dropdown-item" href="?keyword={{ keyword }}&sorting=author">Source</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="container">
-    <div class="row articles">
-        {% for result in results %}
-        <div class="col-sm-6 col-md-4 item">
-            <a href="{{ result.url }}">
-                <img class="img-fluid" src="{{ result.url }}" alt="{{ result.description }}">
-            </a>
-            <h3 class="name">{{ result.title }}</h3>
-            <p class="description">{{ result.description }}</p>
+<div class="article-list" style="padding-top: 60px;">
+    <div class="container">
+        <div class="row articles">
+            {% for result in results %}
+            <div class="col-sm-6 col-md-4 item">
+                <a href="{{ result.url }}">
+                    <img src="{{ result.url }}" alt="{{ result.description }}">
+                </a>
+                <h4 class="name"><a href="{{ result.action_url }}">{{ result.title }}</a></h4>
+                <p class="description">{{ result.description }}</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endblock %}

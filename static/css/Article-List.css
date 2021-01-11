@@ -11,7 +11,7 @@
   font-weight: bold;
   margin-bottom: 40px;
   padding-top: 40px;
-  color: inherit;
+  color: white;
 }
 
 @media (max-width:767px) {
@@ -19,6 +19,7 @@
     margin-bottom: 25px;
     padding-top: 25px;
     font-size: 24px;
+    color: white;
   }
 }
 
@@ -37,8 +38,8 @@
 }
 
 .article-list .item {
-  padding-top: 50px;
-  min-height: 425px;
+  padding-top: 0;
+  min-height: 300px;
   text-align: center;
 }
 
@@ -71,3 +72,8 @@
   opacity: 1;
 }
 
+.article-list .item img {
+  max-width: 100%;
+  max-height: 50%;
+  height: auto;
+}

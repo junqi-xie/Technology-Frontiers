@@ -49,21 +49,18 @@
             </div>
         </div>
     </div>
-    <div class="article-list">
+    <div class="article-list" style="padding-top: 60px;">
         <div class="container">
             <div class="row articles">
-                <div class="col-sm-6 col-md-4 item"><a href="#"><img class="img-fluid" src="assets/img/desk.jpg"></a>
-                    <h3 class="name">Article Title</h3>
-                    <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu gravida. Aliquam varius finibus est, interdum justo suscipit id.</p>
+                {% for article in content %}
+                <div class="col-sm-6 col-md-4 item"><a href="/article?id={{ article.id }}">
+                    {% if article.images | length > 0 %}
+                    <img class="img-fluid" src="{{ article.images[0][0] }}"></a>
+                    {% endif %}
+                    <h3 class="name"><a href="/article?id={{ article.id }}">{{ article.title }}</a></h3>
+                    <p class="description">by {{ article.author }} | {{ article.date }}</p>
                 </div>
-                <div class="col-sm-6 col-md-4 item"><a href="#"><img class="img-fluid" src="assets/img/building.jpg"></a>
-                    <h3 class="name">Article Title</h3>
-                    <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu gravida. Aliquam varius finibus est, interdum justo suscipit id.</p>
-                </div>
-                <div class="col-sm-6 col-md-4 item"><a href="#"><img class="img-fluid" src="assets/img/loft.jpg"></a>
-                    <h3 class="name">Article Title</h3>
-                    <p class="description">Aenean tortor est, vulputate quis leo in, vehicula rhoncus lacus. Praesent aliquam in tellus eu gravida. Aliquam varius finibus est, interdum justo suscipit id.</p>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>

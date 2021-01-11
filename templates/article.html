@@ -4,17 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Technology Frontiers</title>
+    <title>{{ content.title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bitter:400,700">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora">
     <link rel="stylesheet" href="{{ url_for('static', filename='fonts/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/Article-Clean.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Article-List.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/Footer-Basic.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/Header-Dark.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/Projects-Clean.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body>
@@ -38,13 +37,13 @@
             </nav>
         </div>
     </div>
-    <div class="article-clean">
+    <div class="article-clean" style="padding-bottom: 80px;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
                     <div class="intro">
                         <h1 class="text-center">{{ content.title }}</h1>
-                        <p class="text-center"><span class="by">by</span> {{ content.author }} &nbsp;|&nbsp;<span class="date">{{ content.date }}</span></p>
+                        <p class="text-center"><span class="by">by</span> {{ content.author }} <span class="date">{{ content.date }}</span><span class="source"><a href="{{ content.url }}">SOURCE</a></span></p>
                     </div>
                     <div class="text">
                         {{ content.article | safe }}
@@ -53,27 +52,25 @@
             </div>
         </div>
     </div>
-    <div class="projects-clean">
+    {% if content.related | length > 0 %}
+    <div class="article-list">
         <div class="container">
             <div class="intro">
-                <h3 class="text-center">Related Readings</h3>
+                <h2 class="text-center">Related Readings</h2>
             </div>
-            <div class="row projects">
-                <div class="col-sm-6 col-lg-6 item"><img class="img-fluid" src="assets/img/desk.jpg">
-                    <h4 class="name">Project Name</h4>
+            <div class="row articles">
+                {% for article in content.related %}
+                <div class="col-sm-6 col-lg-3 item" >
+                    {% if article.images | length > 0 %}
+                    <img class="img-fluid" src="{{ article.images[0][0] }}">
+                    {% endif %}
+                    <h3 class="name"><a href="/article?id={{ article.id }}">{{ article.title }}</a></h3>
                 </div>
-                <div class="col-sm-6 col-lg-6 item"><img class="img-fluid" src="assets/img/building.jpg">
-                    <h4 class="name">Project Name</h4>
-                </div>
-                <div class="col-sm-6 col-lg-6 item"><img class="img-fluid" src="assets/img/loft.jpg">
-                    <h4 class="name">Project Name</h4>
-                </div>
-                <div class="col-sm-6 col-lg-6 item"><img class="img-fluid" src="assets/img/minibus.jpeg">
-                    <h4 class="name">Project Name</h4>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+    {% endif %}
     <div class="footer-basic">
         <footer>
             <ul class="list-inline">
@@ -82,8 +79,8 @@
             <p class="copyright">EE208 Group 10 © 2020</p>
         </footer>
     </div>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='bootstrap/js/bootstrap.min.js') }}"></script>
 </body>
 
 </html>

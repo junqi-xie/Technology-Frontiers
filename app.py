@@ -1,9 +1,35 @@
-from flask import Flask, redirect, render_template, request, url_for
+import os, random
+
+from flask import Flask, redirect, render_template, request, url_for, send_from_directory
 import sqlite3
+
 from Searcher import Searcher
 
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'upload')
+
+
+def get_article(id):
+    '''
+    Get specified article from the database.
+
+    Input: `id`: id of the article
+    Output: article infomation
+    '''
+    sql_text = "SELECT * FROM MSN WHERE _id='{}'".format(id)
+    result = list(db_cursor.execute(sql_text))[0]
+    info = {
+        'id': result[0],
+        'url': result[1],
+        'title': result[2],
+        'author': result[3],
+        'date': result[4],
+        'article': result[5],
+        'images': eval(result[6]),
+        'related': eval(result[7]),
+    }
+    return info
 
 
 def render_main(request, template, domain):
@@ -16,7 +42,7 @@ def render_main(request, template, domain):
     '''
     if request.method == "POST":
         keyword = request.form['keyword']
-        return redirect(url_for(domain + '/search', keyword=keyword))
+        return redirect(url_for(domain + '_search', keyword=keyword))
     return render_template(template)
 
 
@@ -29,16 +55,24 @@ def render_results(request, template, domain):
            `domain`: search domain
     '''
     if request.method == "POST":
-        if request.form['keyword']:
+        try:
             keyword = request.form['keyword']
-            return redirect(url_for(domain + '/search', keyword=keyword))
-        else:
-            f = request.files['file']
-            f.save('upload/' + f.filename)
-            return redirect(url_for(domain + '/search', keyword=f.filename))
+            return redirect(url_for(domain + '_search', keyword=keyword))
+        except:
+            pass
+        try:
+            file = request.files['file']
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('visual_search', keyword=filename))
+        except:
+            pass
     
     keyword = request.args.get('keyword')
-    results = searcher.search(keyword, domain)
+    sorting = '_score'
+    if request.args.get('sorting'):
+        sorting = request.args.get('sorting')
+    results = searcher.search(keyword, domain, sorting)
     return render_template(template, keyword=keyword, results=results)
 
 
@@ -46,25 +80,23 @@ def render_results(request, template, domain):
 def index():
     if request.method == "POST":
         keyword = request.form['keyword']
-        return redirect(url_for('web/search', keyword=keyword))
-    return render_template('index.html')
+        return redirect(url_for('web_search', keyword=keyword))
+
+    main = random.sample(range(15931), 3)
+    content = list(map(lambda x: get_article(x), main))
+    return render_template('index.html', content=content)
 
 
 @app.route('/article', methods=['POST', 'GET'])
 def article():
     if request.method == "POST":
         keyword = request.form['keyword']
-        return redirect(url_for('web/search', keyword=keyword))
+        return redirect(url_for('web_search', keyword=keyword))
 
-    _id = request.args.get('id')
-    sql_text = "SELECT * FROM MSN WHERE _id='{}'".format(_id)
-    result = list(db_cursor.execute(sql_text))[0]
-    content = {
-        'title': result[0],
-        'date': result[1],
-        'author': result[2],
-        'article': result[6]
-    }
+    id = request.args.get('id')
+    content = get_article(id)
+    content['article'] = '<p>' + '</p><p>'.join(content['article'].split('\n'))
+    content['related'] = list(map(lambda x: get_article(x), content['related']))
     return render_template("article.html", content=content)
 
 
@@ -91,13 +123,18 @@ def images_search():
 @app.route('/visual', methods=['POST', 'GET'])
 def visual():
     if request.method == "POST":
-        if request.form['keyword']:
+        try:
             keyword = request.form['keyword']
-            return redirect(url_for('images/search', keyword=keyword))
-        else:
-            f = request.files['file']
-            f.save('upload/' + f.filename)
-            return redirect(url_for('visual/search', keyword=f.filename))
+            return redirect(url_for('images_search', keyword=keyword))
+        except:
+            pass
+        try: 
+            file = request.files['file']
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('visual_search', keyword=filename))
+        except:
+            pass
     return render_template('visual.html')
 
 
