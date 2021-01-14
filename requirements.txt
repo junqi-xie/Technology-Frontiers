@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+nltk
+simhash
+torch
+torchvision
+facenet_pytorch
+elasticsearch
+flask

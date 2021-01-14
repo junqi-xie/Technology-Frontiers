@@ -1,6 +1,6 @@
 import os, random
 
-from flask import Flask, redirect, render_template, request, url_for, send_from_directory
+from flask import Flask, redirect, render_template, request, url_for
 import sqlite3
 
 from Searcher import Searcher
@@ -17,7 +17,7 @@ def get_article(id):
     Input: `id`: id of the article
     Output: article infomation
     '''
-    sql_text = "SELECT * FROM MSN WHERE _id='{}'".format(id)
+    sql_text = "SELECT * FROM MSN_TECH WHERE _id='{}'".format(id)
     result = list(db_cursor.execute(sql_text))[0]
     info = {
         'id': result[0],
@@ -26,8 +26,9 @@ def get_article(id):
         'author': result[3],
         'date': result[4],
         'article': result[5],
-        'images': eval(result[6]),
-        'related': eval(result[7]),
+        'html': result[6],
+        'images': eval(result[7]),
+        'related': eval(result[8]),
     }
     return info
 
@@ -72,8 +73,11 @@ def render_results(request, template, domain):
     sorting = '_score'
     if request.args.get('sorting'):
         sorting = request.args.get('sorting')
-    results = searcher.search(keyword, domain, sorting)
-    return render_template(template, keyword=keyword, results=results)
+    try:
+        results = searcher.search(keyword, domain, sorting)
+        return render_template(template, keyword=keyword, results=results)
+    except RuntimeError as e:
+        return redirect(url_for('visual', error=e))
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -82,7 +86,7 @@ def index():
         keyword = request.form['keyword']
         return redirect(url_for('web_search', keyword=keyword))
 
-    main = random.sample(range(15931), 3)
+    main = random.sample(range(7360), 3)
     content = list(map(lambda x: get_article(x), main))
     return render_template('index.html', content=content)
 
@@ -95,7 +99,8 @@ def article():
 
     id = request.args.get('id')
     content = get_article(id)
-    content['article'] = '<p>' + '</p><p>'.join(content['article'].split('\n'))
+    if -1 in content['related']:
+        content['related'] = content['related'][:content['related'].index(-1)]
     content['related'] = list(map(lambda x: get_article(x), content['related']))
     return render_template("article.html", content=content)
 
@@ -135,7 +140,9 @@ def visual():
             return redirect(url_for('visual_search', keyword=filename))
         except:
             pass
-    return render_template('visual.html')
+    
+    error = request.args.get('error')
+    return render_template('visual.html', error=error)
 
 
 @app.route('/visual/search', methods=['POST', 'GET'])
@@ -147,6 +154,6 @@ searcher = None  # To be initialized in __main__
 db_cursor = None  # To be initialized in __main__
 if __name__ == '__main__':
     searcher = Searcher('http://localhost:9200/')
-    db = sqlite3.connect('data/MSN.db', check_same_thread = False)
+    db = sqlite3.connect('data/MSN_technology.db', check_same_thread = False)
     db_cursor = db.cursor()
     app.run(debug=True, port=8080)

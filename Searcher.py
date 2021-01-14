@@ -30,7 +30,7 @@ class Searcher:
         '''
         results = []
         if domain == 'web':
-            docs = self.bool_search(keyword, sorting={ sorting: 'desc' })
+            docs = self.bool_search('webpages', keyword, sorting={ sorting: 'desc' })
             for doc in docs:
                 source = doc['_source']
                 highlight = doc['highlight']
@@ -41,17 +41,15 @@ class Searcher:
                     'abstract': '...'.join(highlight['article']) if 'article' in highlight else ''
                 })
         elif domain == 'images':
-            docs = self.bool_search(keyword, fields=['image_descriptions'], sorting={ sorting: 'desc' })
+            docs = self.bool_search('images', keyword, fields=['description'], sorting={ sorting: 'desc' })
             for doc in docs:
                 source = doc['_source']
-                images = eval(source['images'])
-                for image, description in images:
-                    results.append({
-                        'title': source['title'],
-                        'url': image,
-                        'description': description,
-                        'action_url': source['url']
-                    })
+                results.append({
+                    'title': source['title'],
+                    'url': source['url'],
+                    'description': source['description'],
+                    'action_url': '/article?id={}'.format(source['id'])
+                })
         elif domain == 'visual':
             docs = self.face_search('upload/' + keyword)
             for doc in docs[:50]:
@@ -61,7 +59,7 @@ class Searcher:
                         'title': doc['title'],
                         'url': image,
                         'description': description,
-                        'action_url': doc['url']
+                        'action_url': '/article?id={}'.format(doc['_id'])
                     })
         return results
 
@@ -88,14 +86,14 @@ class Searcher:
         return command_dict
 
 
-    def bool_search(self, keyword, fields=['title', 'article'], sorting={'_score': 'desc'}, time_range=None):
+    def bool_search(self, index, keyword, fields=['title', 'article'], sorting={'_score': 'desc'}):
         '''
         Bool search for elastic search.
 
-        Input: `keyword`: search command
+        Input: `index`: index for search
+               `keyword`: search command
                `fields`: fields for general searches
                `sorting`: method of sorting (default: score decending)
-               `time_range`: range of accepted time
         Output: `result` from elastic search
         '''
         query = {
@@ -139,25 +137,8 @@ class Searcher:
                 }
             })
 
-        result = self.es.search(index='msn', body=query)
-        if time_range:
-            return [x for x in result['hits']['hits'] if time_range[0] <= x['data'] <= time_range[1]]
-        else:
-            return result['hits']['hits']
-
-
-    def features(self, x):
-        x = self.model.conv1(x)
-        x = self.model.bn1(x)
-        x = self.model.relu(x)
-        x = self.model.maxpool(x)
-        x = self.model.layer1(x)
-        x = self.model.layer2(x)
-        x = self.model.layer3(x)
-        x = self.model.layer4(x)
-        x = self.model.avgpool(x)
-
-        return x
+        result = self.es.search(index=index, body=query)
+        return result['hits']['hits']
 
 
     def face_search(self, image_path):
@@ -194,7 +175,7 @@ class Searcher:
                     'images': res[5],
                     'url': res[6],
                     'type': res[-1],
-                    '_id': res[-4]
+                    '_id': res[-5]
                 })
         return result
 

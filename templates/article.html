@@ -46,7 +46,7 @@
                         <p class="text-center"><span class="by">by</span> {{ content.author }} <span class="date">{{ content.date }}</span><span class="source"><a href="{{ content.url }}">SOURCE</a></span></p>
                     </div>
                     <div class="text">
-                        {{ content.article | safe }}
+                        {{ content.html | safe }}
                     </div>
                 </div>
             </div>
@@ -60,11 +60,12 @@
             </div>
             <div class="row articles">
                 {% for article in content.related %}
-                <div class="col-sm-6 col-lg-3 item" >
+                <div class="col-sm-6 col-lg-3 item" ><a href="/article?id={{ article.id }}">
                     {% if article.images | length > 0 %}
-                    <img class="img-fluid" src="{{ article.images[0][0] }}">
+                    <img class="img-fluid" src="{{ article.images[0][0] }}"></a>
                     {% endif %}
                     <h3 class="name"><a href="/article?id={{ article.id }}">{{ article.title }}</a></h3>
+                    <p class="description">by {{ article.author }} | {{ article.date }}</p>
                 </div>
                 {% endfor %}
             </div>
