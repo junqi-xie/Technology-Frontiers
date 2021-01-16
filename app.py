@@ -153,7 +153,7 @@ def visual_search():
 searcher = None  # To be initialized in __main__
 db_cursor = None  # To be initialized in __main__
 if __name__ == '__main__':
-    searcher = Searcher('http://localhost:9200/')
+    searcher = Searcher('localhost')
     db = sqlite3.connect('data/MSN_technology.db', check_same_thread = False)
     db_cursor = db.cursor()
     app.run(debug=True, port=8080)

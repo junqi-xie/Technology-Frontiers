@@ -46,9 +46,9 @@ class Searcher:
                 source = doc['_source']
                 results.append({
                     'title': source['title'],
+                    'link': '/article?id={}'.format(source['article_id']),
                     'url': source['url'],
-                    'description': source['description'],
-                    'action_url': '/article?id={}'.format(source['id'])
+                    'abstract': source['description']
                 })
         elif domain == 'visual':
             docs = self.face_search('upload/' + keyword)
