@@ -141,6 +141,12 @@ class Searcher:
 
 
     def face_search(self, image_path):
+        '''
+        Face search for specific image path.
+
+        Input: `image_path`: path of the image uploaded
+        Output: `result` of similar images
+        '''
         try:
             image = Image.open(image_path)
             image_cropped = self.mtcnn(image)

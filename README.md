@@ -15,6 +15,7 @@ This repository is designed with Bootstrap Studio, with a backend consisting of 
 * Clone this repo.
 * Load the data into the server:
   * Excute the `.ipynb` file to load data into Elastic Search server.
+* Execute `app.py`.
 
 ## Copyright and License
 

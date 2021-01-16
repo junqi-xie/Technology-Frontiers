@@ -33,6 +33,27 @@ def get_article(id):
     return info
 
 
+def search_handle(request, domain):
+    '''
+    Handle search redirects and file uploads for webpages.
+
+    Input: `request`: `request` variable received
+           `domain`: search domain
+    '''
+    try:
+        keyword = request.form['keyword']
+        return redirect(url_for(domain + '_search', keyword=keyword))
+    except:
+        pass
+    try:
+        file = request.files['file']
+        filename = file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return redirect(url_for('visual_search', keyword=filename))
+    except:
+        pass
+
+
 def render_main(request, template, domain):
     '''
     Render 'main' page for website and image search.
@@ -42,8 +63,7 @@ def render_main(request, template, domain):
            `domain`: search domain
     '''
     if request.method == "POST":
-        keyword = request.form['keyword']
-        return redirect(url_for(domain + '_search', keyword=keyword))
+        return search_handle(request, domain)
     return render_template(template)
 
 
@@ -56,18 +76,7 @@ def render_results(request, template, domain):
            `domain`: search domain
     '''
     if request.method == "POST":
-        try:
-            keyword = request.form['keyword']
-            return redirect(url_for(domain + '_search', keyword=keyword))
-        except:
-            pass
-        try:
-            file = request.files['file']
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('visual_search', keyword=filename))
-        except:
-            pass
+        return search_handle(request, domain)
     
     keyword = request.args.get('keyword')
     sorting = '_score'
@@ -83,8 +92,7 @@ def render_results(request, template, domain):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     if request.method == "POST":
-        keyword = request.form['keyword']
-        return redirect(url_for('web_search', keyword=keyword))
+        return search_handle(request, 'web')
 
     main = random.sample(range(7360), 3)
     content = list(map(lambda x: get_article(x), main))
@@ -94,8 +102,7 @@ def index():
 @app.route('/article', methods=['POST', 'GET'])
 def article():
     if request.method == "POST":
-        keyword = request.form['keyword']
-        return redirect(url_for('web_search', keyword=keyword))
+        return search_handle(request, 'web')
 
     id = request.args.get('id')
     content = get_article(id)
@@ -128,18 +135,7 @@ def images_search():
 @app.route('/visual', methods=['POST', 'GET'])
 def visual():
     if request.method == "POST":
-        try:
-            keyword = request.form['keyword']
-            return redirect(url_for('images_search', keyword=keyword))
-        except:
-            pass
-        try: 
-            file = request.files['file']
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('visual_search', keyword=filename))
-        except:
-            pass
+        return search_handle(request, 'image')
     
     error = request.args.get('error')
     return render_template('visual.html', error=error)
