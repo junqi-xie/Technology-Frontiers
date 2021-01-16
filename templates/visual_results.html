@@ -7,10 +7,10 @@
             {% for result in results %}
             <div class="col-sm-6 col-md-4 item">
                 <a href="{{ result.url }}">
-                    <img class="img-fluid" src="{{ result.url }}" alt="{{ result.description }}">
+                    <img class="img-fluid" src="{{ result.url }}" alt="{{ result.abstract }}">
                 </a>
-                <h4 class="name"><a href="{{ result.action_url }}">{{ result.title }}</a></h4>
-                <p class="description">{{ result.description }}</p>
+                <h4 class="name"><a href="{{ result.link }}">{{ result.title }}</a></h4>
+                <p class="description">{{ result.abstract }}</p>
             </div>
             {% endfor %}
         </div>

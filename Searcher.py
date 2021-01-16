@@ -11,11 +11,11 @@ class Searcher:
 
         self.face_model = InceptionResnetV1(pretrained='vggface2').eval()
         self.mtcnn = MTCNN()
-        self.face_embeddings = np.load('models/face_embeddings.npy')
-        self.embedding2img = np.load('models/embedding2img.npy')
+        self.embeddings = np.load('models/embeddings.npy')
+        self.embeddings_img = np.load('models/embeddings_image.npy')
         self.normalize = lambda x : x / np.linalg.norm(x)
         
-        self.image_db = sqlite3.connect('data/images.db', check_same_thread = False)
+        self.image_db = sqlite3.connect('data/MSN_technology.db', check_same_thread = False)
         self.db_cursor = self.image_db.cursor()
     
 
@@ -52,15 +52,14 @@ class Searcher:
                 })
         elif domain == 'visual':
             docs = self.face_search('upload/' + keyword)
-            for doc in docs[:50]:
-                imgs = eval(doc['images'])
-                for image, description in imgs:
-                    results.append({
-                        'title': doc['title'],
-                        'url': image,
-                        'description': description,
-                        'action_url': '/article?id={}'.format(doc['_id'])
-                    })
+            for doc in docs:
+                source = doc
+                results.append({
+                    'title': source['title'],
+                    'link': '/article?id={}'.format(source['article_id']),
+                    'url': source['url'],
+                    'abstract': source['description']
+                })
         return results
 
 
@@ -143,16 +142,16 @@ class Searcher:
 
     def face_search(self, image_path):
         try:
-            img = Image.open(image_path)
-            img_cropped = self.mtcnn(img)
-            img_embedding = self.face_model(img_cropped.unsqueeze(0)).detach().numpy().reshape((512))
+            image = Image.open(image_path)
+            image_cropped = self.mtcnn(image)
+            image_embedding = self.face_model(image_cropped.unsqueeze(0)).detach().numpy().reshape((512))
         except:
             raise RuntimeError("No face")
 
-        distances = np.zeros(self.face_embeddings.shape[0])
+        distances = np.zeros(self.embeddings.shape[0])
 
-        for i in range(self.face_embeddings.shape[0]):
-            distances[i] = np.linalg.norm(img_embedding - self.face_embeddings[i])
+        for i in range(self.embeddings.shape[0]):
+            distances[i] = np.linalg.norm(image_embedding - self.embeddings[i])
         x = distances.argsort()[:100]
 
         least = 0
@@ -162,20 +161,18 @@ class Searcher:
             raise RuntimeError("Not found")
 
         result = []
-        for i in range(least):
-            index = int(self.embedding2img[x[i]])
-            if index != -1:
-                image_name = str(index) + '.jpg'
-                res = list(self.db_cursor.execute("SELECT * FROM MSN WHERE fname='{}'".format(image_name)))[0]
+        for i in range(min(least, 50)):
+            _id = int(self.embeddings_img[x[i]])
+            if _id != -1:
+                res = list(self.db_cursor.execute("SELECT * FROM IMAGES WHERE _id = {}".format(_id)))[0]
                 result.append({
-                    'title': res[1],
-                    'date': res[2],
-                    'author': res[3],
-                    'article': res[4],
-                    'images': res[5],
-                    'url': res[6],
-                    'type': res[-1],
-                    '_id': res[-5]
+                    '_id': res[0],
+                    'url': res[1],
+                    'description': res[2],
+                    'article_id': res[3],
+                    'title': res[4],
+                    'author': res[5],
+                    'date': res[6]
                 })
         return result
 
